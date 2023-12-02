@@ -3,4 +3,6 @@ obj/
 /packages/
 riderModule.iml
 /_ReSharper.Caches/
+**/puzzle-input.txt
 Day01.Trebuchet/puzzle-input.txt
+Day02.CubeConundrum/puzzle-input.txt

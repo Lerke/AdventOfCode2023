@@ -2,6 +2,8 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Day01.Trebuchet", "Day01.Trebuchet\Day01.Trebuchet.fsproj", "{9270EECC-9905-4725-ABE1-6065422787E7}"
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Day02.CubeConundrum", "Day02.CubeConundrum\Day02.CubeConundrum.fsproj", "{0694FC13-7E7D-41A6-94C2-3B5CF2715E28}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +14,9 @@ Global
 		{9270EECC-9905-4725-ABE1-6065422787E7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9270EECC-9905-4725-ABE1-6065422787E7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9270EECC-9905-4725-ABE1-6065422787E7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0694FC13-7E7D-41A6-94C2-3B5CF2715E28}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0694FC13-7E7D-41A6-94C2-3B5CF2715E28}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0694FC13-7E7D-41A6-94C2-3B5CF2715E28}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0694FC13-7E7D-41A6-94C2-3B5CF2715E28}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
