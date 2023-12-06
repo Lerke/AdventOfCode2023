@@ -1,6 +1,7 @@
 ﻿open System
 open System.IO
 open System.Text.RegularExpressions
+open FSharp.Collections.ParallelSeq
 
 type Almenac =
     { SeedsToPlant: int64 list
@@ -22,7 +23,7 @@ let GetMappingForAlmenacSectionAndSeedNumber (section: AlmenacSection) (seed: in
     section
     |> (fun f ->
         (f.Lines
-         |> List.tryFind (fun p -> p.SourceRangeStart <= seed && seed <= (p.SourceRangeStart + p.RangeLength))))
+         |> List.tryFind (fun p -> p.SourceRangeStart <= seed && seed < (p.SourceRangeStart + p.RangeLength))))
     |> fun f ->
         match f with
         | Some z -> z |> fun f -> (f.DestinationRangeStart) + (seed - f.SourceRangeStart)
@@ -33,6 +34,36 @@ let GetMappingForSeedNumber (almenac: Almenac) (seed: int64) =
     |> fun f ->
         f
         |> List.fold (fun acc ele -> GetMappingForAlmenacSectionAndSeedNumber ele acc) seed
+
+let FindOverlappingRanges (seeds: int64 list) =
+    seeds
+    |> Seq.chunkBySize 2
+    |> Seq.sortBy (fun f -> f[0])
+    |> Seq.map (fun f -> (f[0], f[0] + (f[1] - 1L)))
+    |> Seq.pairwise
+    |> Seq.map (fun (((s1, e1), (s2, e2))) ->
+        match e1 > s2 with
+        | true -> ((s1, s2 - s1), (s2, e2))
+        | false -> ((s1, e1), (s2, e2)))
+    |> Seq.map (fun ((s1, e1), (s2, e2)) -> [| [| s1; e1 |]; [| s2; e2 |] |])
+    |> Seq.collect id
+
+let ExpandSeedNumbersMapping (almenac: Almenac) =
+    FindOverlappingRanges almenac.SeedsToPlant
+    |> PSeq.map (fun f ->
+        seq { f[0] .. f[1] }
+        |> Seq.chunkBySize 10000
+        |> PSeq.map (fun f ->
+            f
+            |> PSeq.fold
+                (fun acc ele ->
+                    let x = GetMappingForSeedNumber almenac ele
+
+                    match x < acc with
+                    | true -> x
+                    | false -> acc)
+                (f[0]))
+        |> PSeq.min)
 
 let ParseAlmenacFile file =
     let seedMapRegex = Regex("seeds:.*")
@@ -80,10 +111,15 @@ match Environment.GetCommandLineArgs() with
 
     let locationNumbers =
         almenac.SeedsToPlant |> List.map (GetMappingForSeedNumber almenac)
-    let lowestLocationNumber = locationNumbers |> List.min
-    
-    printf $"[*] Lowest location number: %i{lowestLocationNumber}"
 
+    let lowestLocationNumber = locationNumbers |> List.min
+
+    printfn $"[*] Lowest location number: %i{lowestLocationNumber}"
+
+    let expandedLocationNumbers = ExpandSeedNumbersMapping almenac
+    let expandedLowestLocationNumber = expandedLocationNumbers |> PSeq.min
+
+    printfn $"[**] Lowest location number: %i{expandedLowestLocationNumber}"
 
     0 |> ignore
 | _ ->
