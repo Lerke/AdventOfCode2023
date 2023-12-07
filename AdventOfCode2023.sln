@@ -12,6 +12,8 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Day05.IfYouGiveASeedAFertil
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Day06.WaitForIt", "Day06.WaitForIt\Day06.WaitForIt.fsproj", "{60FD6B86-896B-4976-9ED8-91700D416D8D}"
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Day07.CamelCards", "Day07.CamelCards\Day07.CamelCards.fsproj", "{27769113-C078-4CA5-9D14-C1DB5689E87A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -42,5 +44,9 @@ Global
 		{60FD6B86-896B-4976-9ED8-91700D416D8D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{60FD6B86-896B-4976-9ED8-91700D416D8D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{60FD6B86-896B-4976-9ED8-91700D416D8D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{27769113-C078-4CA5-9D14-C1DB5689E87A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{27769113-C078-4CA5-9D14-C1DB5689E87A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{27769113-C078-4CA5-9D14-C1DB5689E87A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{27769113-C078-4CA5-9D14-C1DB5689E87A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
