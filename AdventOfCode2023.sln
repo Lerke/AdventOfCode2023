@@ -14,6 +14,8 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Day06.WaitForIt", "Day06.Wa
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Day07.CamelCards", "Day07.CamelCards\Day07.CamelCards.fsproj", "{27769113-C078-4CA5-9D14-C1DB5689E87A}"
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Day08.HauntedWasteland", "Day08.HauntedWasteland\Day08.HauntedWasteland.fsproj", "{4A74FB9A-9BCF-4881-B8D4-730F6B96E019}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -48,5 +50,9 @@ Global
 		{27769113-C078-4CA5-9D14-C1DB5689E87A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{27769113-C078-4CA5-9D14-C1DB5689E87A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{27769113-C078-4CA5-9D14-C1DB5689E87A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4A74FB9A-9BCF-4881-B8D4-730F6B96E019}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4A74FB9A-9BCF-4881-B8D4-730F6B96E019}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4A74FB9A-9BCF-4881-B8D4-730F6B96E019}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4A74FB9A-9BCF-4881-B8D4-730F6B96E019}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
