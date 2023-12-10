@@ -12,10 +12,9 @@ type HandType =
     | HighCard = 1
 
 type PlayingCard =
-    | Ace = 14
-    | King = 13
-    | Queen = 12
-    | Jack = 11
+    | Ace = 13
+    | King = 12
+    | Queen = 11
     | Ten = 10
     | Nine = 9
     | Eight = 8
@@ -25,14 +24,14 @@ type PlayingCard =
     | Four = 4
     | Three = 3
     | Two = 2
-    | One = 1
+    | Joker = 1
 
-let PlayingCard (c: char) =
+let ParsePlayingCard (c: char) =
     match c with
     | 'A' -> PlayingCard.Ace
     | 'K' -> PlayingCard.King
     | 'Q' -> PlayingCard.Queen
-    | 'J' -> PlayingCard.Jack
+    | 'J' -> PlayingCard.Joker
     | 'T' -> PlayingCard.Ten
     | '9' -> PlayingCard.Nine
     | '8' -> PlayingCard.Eight
@@ -42,12 +41,24 @@ let PlayingCard (c: char) =
     | '4' -> PlayingCard.Four
     | '3' -> PlayingCard.Three
     | '2' -> PlayingCard.Two
-    | '1' -> PlayingCard.One
 
 type CamelCardsHand =
     { Id: int
       Cards: PlayingCard[]
       Bid: int64 }
+
+let rec ExpandJokerHand (hand: CamelCardsHand) =
+    match (hand.Cards |> Array.tryFindIndex (fun f -> f = PlayingCard.Joker)) with
+    | Some i ->
+        [| 2..13 |]
+        |> Array.map (fun c ->
+            hand.Cards
+            |> Array.mapi (fun k v -> if k = i then (LanguagePrimitives.EnumOfValue c) else v))
+        |> Array.map (fun z -> ExpandJokerHand { hand with Cards = z })
+        |> Array.collect id
+    // |> Array.filter (fun f -> (f |> Array.contains PlayingCard.Joker) = false)
+    | None -> [| hand.Cards |]
+
 
 let DetermineHandType (hand: CamelCardsHand) =
     let isFiveOfAKind hand =
@@ -128,9 +139,20 @@ let DetermineHandType (hand: CamelCardsHand) =
         | _ -> false)
     |> fun f -> (f hand).Value
 
+let GetStrongestHand (hands: PlayingCard array array) =
+    hands
+    |> Array.map (fun h -> (h, LanguagePrimitives.EnumToValue(DetermineHandType { Id = 0; Bid = 0L; Cards = h })))
+    |> Array.maxBy snd
+    |> fst
+
 let CompareHands (a: CamelCardsHand) (b: CamelCardsHand) =
-    let aValue = DetermineHandType a
-    let bValue = DetermineHandType b
+    let strongestJokerHand =
+        ExpandJokerHand
+        >> GetStrongestHand
+        >> (fun f -> { Id = 0; Bid = 0L; Cards = f })
+
+    let aValue = DetermineHandType(a |> strongestJokerHand)
+    let bValue = DetermineHandType(b |> strongestJokerHand)
 
     match aValue < bValue with
     | true -> (b, a)
@@ -154,7 +176,7 @@ let ParseHand (line: string) index =
         | [| _; cards; bid |] ->
             { Id = index
               Bid = bid.Value |> int64
-              Cards = cards.Value |> Seq.map PlayingCard |> Seq.toArray })
+              Cards = cards.Value |> Seq.map ParsePlayingCard |> Seq.toArray })
 
 let ParseInput file =
     File.ReadAllLines file |> Seq.mapi (fun i f -> ParseHand f i) |> Seq.toArray
@@ -166,15 +188,18 @@ match Environment.GetCommandLineArgs() with
     let totalWinnings =
         hands
         |> Array.sortWith (fun a b ->
-            match CompareHands a b with
-            | (x, _) when x.Id = a.Id -> -1
-            | (x, _) when x.Id = b.Id -> 1
-            | _ -> 0)
+            match a.Id = b.Id with
+            | true -> 0
+            | false ->
+                match CompareHands a b with
+                | (x, _) when x.Id = a.Id -> -1
+                | (x, _) when x.Id = b.Id -> 1
+                | _ -> 0)
         |> Array.rev
         |> Array.zip [| 1 .. hands.Length |]
         |> Array.fold (fun acc (rank, card) -> acc + ((rank |> int64) * card.Bid)) 0L
 
-    printfn $"[*] Total winnings: %i{totalWinnings}"
+    printfn $"[**] Total winnings: %i{totalWinnings}"
     0 |> ignore
 | _ ->
     printf "Usage: dotnet run /path/to/file"

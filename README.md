@@ -10,4 +10,4 @@ My own solutions to the Advent of Code 2023 problems.
 | 4   | F#       | :star2: :star2: | [Day04.Scratchcards](https://github.com/Lerke/AdventOfCode2023/tree/main/Day04.Scratchcards)                           |
 | 5   | F#       | :star2: :star2: | [Day05.IfYouGiveASeedAFertilizer](https://github.com/Lerke/AdventOfCode2023/tree/main/Day05.IfYouGiveASeedAFertilizer) |
 | 6   | F#       | :star2: :star2: | [Day06.WaitForIt](https://github.com/Lerke/AdventOfCode2023/tree/main/Day06.WaitForIt)                                 |
-| 7   | F#       | :star2:         | [Day07.CamelCards](https://github.com/Lerke/AdventOfCode2023/tree/main/Day07.CamelCards)                                |
+| 7   | F#       | :star2: :star2: | [Day07.CamelCards](https://github.com/Lerke/AdventOfCode2023/tree/main/Day07.CamelCards)                                |
