@@ -4,14 +4,18 @@ open System.Text.RegularExpressions
 
 type Map =
     { StepSequence: char array
-      Start: Node
-      End: Node
       Nodes: Map<string, Node> }
 
 and Node =
     { Key: string
       mutable Left: Node Option
       mutable Right: Node Option }
+
+let PerformStep (start: Node) (directions: char array) (stepsTaken: int64) =
+    let currentInstruction = directions[(stepsTaken % (directions.Length |> int64)) |> int]
+    match currentInstruction with
+    | 'L' -> start.Left.Value
+    | 'R' -> start.Right.Value
 
 let rec FollowSequence (start: Node) (target: Node) (directions: char array) (path: Node list) =
     match (start.Key = target.Key) with
@@ -21,7 +25,15 @@ let rec FollowSequence (start: Node) (target: Node) (directions: char array) (pa
         match currentInstruction with
         | 'L' -> FollowSequence (start.Left.Value) target directions (path @ [start])
         | 'R' -> FollowSequence (start.Right.Value) target directions (path @ [start])
-        | _ -> failwith "Unknown instruction"
+
+let rec GhostPathing (starts: Node list) (directions: char array) (stepsTaken: int64) =
+    printfn $"Steps taken: %i{stepsTaken}"
+    let allFinished = starts |> List.forall (fun f -> f.Key.EndsWith "Z")
+    match allFinished with
+    | true -> stepsTaken
+    | false ->
+        let newStarts = starts |> List.map (fun f -> PerformStep f directions stepsTaken)
+        GhostPathing newStarts directions (stepsTaken + 1L)
 
 let ParseInput file =
     let lines = File.ReadAllLines file
@@ -47,16 +59,20 @@ let ParseInput file =
         ignore)
 
     { StepSequence = stepsSeq
-      Start = nodeKeys["AAA"]
-      End = nodeKeys["ZZZ"]
       Nodes = nodeKeys }
 
 match Environment.GetCommandLineArgs() with
 | [| _; file |] ->
     let map = ParseInput file
-    let followedPath = FollowSequence map.Start map.End map.StepSequence []
+    // let followedPath = FollowSequence map.Nodes["AAA"] map.Nodes["ZZZ"] map.StepSequence []
+    // printfn "[*] Number of steps required from AAA -> ZZZ: %i" (followedPath |> Seq.length)
     
-    printf "[*] Number of steps required from AAA -> ZZZ: %i" (followedPath |> Seq.length)
+    let ghostStartingNodes =
+        map.Nodes
+        |> Map.filter (fun f _ -> f.EndsWith("A"))
+        
+    let followedGhostPath = GhostPathing (ghostStartingNodes.Values |> List.ofSeq) map.StepSequence 0
+    printfn "[**] Number of steps taken before only on nodes ending with Z: %i" followedGhostPath
     0 |> ignore
 | _ ->
     printf "Usage: dotnet run /path/to/file"
