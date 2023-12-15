@@ -11,12 +11,6 @@ and Node =
       mutable Left: Node Option
       mutable Right: Node Option }
 
-let PerformStep (start: Node) (directions: char array) (stepsTaken: int64) =
-    let currentInstruction = directions[(stepsTaken % (directions.Length |> int64)) |> int]
-    match currentInstruction with
-    | 'L' -> start.Left.Value
-    | 'R' -> start.Right.Value
-
 let rec FollowSequence (start: Node) (target: Node) (directions: char array) (path: Node list) =
     match (start.Key = target.Key) with
     | true -> path
@@ -26,14 +20,18 @@ let rec FollowSequence (start: Node) (target: Node) (directions: char array) (pa
         | 'L' -> FollowSequence (start.Left.Value) target directions (path @ [start])
         | 'R' -> FollowSequence (start.Right.Value) target directions (path @ [start])
 
-let rec GhostPathing (starts: Node list) (directions: char array) (stepsTaken: int64) =
-    printfn $"Steps taken: %i{stepsTaken}"
-    let allFinished = starts |> List.forall (fun f -> f.Key.EndsWith "Z")
-    match allFinished with
-    | true -> stepsTaken
-    | false ->
-        let newStarts = starts |> List.map (fun f -> PerformStep f directions stepsTaken)
-        GhostPathing newStarts directions (stepsTaken + 1L)
+let rec DetermineFullPath (starts: Node) (directions: char array) (path: (Node * string) List) =
+    let pathIdx = path.Length % directions.Length
+    let remainingDirections = directions |> Array.skip pathIdx
+    let seenBefore = path |> List.tryFindIndex (fun f -> (fst f).Key = starts.Key && (snd f) = (String(remainingDirections)))
+    match seenBefore with
+    | Some x -> path @ [ (starts, String(remainingDirections)) ]
+    | None -> 
+        let appendedPath = path @ [ (starts, String(remainingDirections)) ]
+        let currentInstruction = remainingDirections[0]
+        match currentInstruction with
+        | 'L' -> DetermineFullPath (starts.Left.Value) directions appendedPath
+        | 'R' -> DetermineFullPath (starts.Right.Value) directions appendedPath
 
 let ParseInput file =
     let lines = File.ReadAllLines file
@@ -61,18 +59,34 @@ let ParseInput file =
     { StepSequence = stepsSeq
       Nodes = nodeKeys }
 
+let rec gcd (x: int64) (y: int64) = if y = 0 then abs x else gcd y (x % y)
+
+let lcm (a: int64) (b: int64) = a * b / (gcd a b)
+
 match Environment.GetCommandLineArgs() with
 | [| _; file |] ->
     let map = ParseInput file
-    // let followedPath = FollowSequence map.Nodes["AAA"] map.Nodes["ZZZ"] map.StepSequence []
-    // printfn "[*] Number of steps required from AAA -> ZZZ: %i" (followedPath |> Seq.length)
+    let followedPath = FollowSequence map.Nodes["AAA"] map.Nodes["ZZZ"] map.StepSequence []
+    printfn $"[*] Number of steps required from AAA -> ZZZ: %i{followedPath |> Seq.length}"
     
     let ghostStartingNodes =
         map.Nodes
         |> Map.filter (fun f _ -> f.EndsWith("A"))
         
-    let followedGhostPath = GhostPathing (ghostStartingNodes.Values |> List.ofSeq) map.StepSequence 0
-    printfn "[**] Number of steps taken before only on nodes ending with Z: %i" followedGhostPath
+    let followedPath =
+        ghostStartingNodes
+        |> Map.values
+        |> Seq.map (fun f -> DetermineFullPath f map.StepSequence [] )
+        |> Seq.toList
+        
+    let shortestPath =
+        followedPath
+        |> Seq.map(fun f -> (f |> List.findIndex (fun z -> (fst z).Key.EndsWith "Z") |> int64))
+        |> Seq.pairwise
+        |> Seq.map (fun f -> lcm (fst f) (snd f))
+        |> Seq.reduce (fun acc ele -> lcm acc ele)
+        
+    printfn $"[**] Number of steps taken before only on nodes ending with Z: %i{shortestPath}"
     0 |> ignore
 | _ ->
     printf "Usage: dotnet run /path/to/file"
