@@ -1,28 +1,77 @@
 ﻿open System
 open System.IO
 
-type History = { NumberSequence: int seq }
+type History = { NumberSequence: HistoryElement array }
 
-let rec ExtrapolateSequence (sequence: int seq) (sequences: int seq list) =
+and HistoryElement =
+    | Number of int
+    | Placeholder
+
+let rec ExtrapolateSequence (sequence: HistoryElement array) (sequences: HistoryElement array list) =
     let newSequence =
-        sequence |> Seq.pairwise |> Seq.map (fun (a, b) -> abs (b - a)) |> Seq.toList
+        sequence
+        |> Seq.pairwise
+        |> Seq.map (fun (a, b) ->
+            match (a, b) with
+            | (Number a, Number b) -> Number(b - a)
+            | _ -> failwithf "Parse error")
+        |> Seq.toArray
 
-    match (newSequence |> Seq.forall (fun f -> f = 0)) with
+    match (newSequence |> Seq.forall (fun f -> f = Number 0)) with
     | true -> sequences @ [ newSequence ]
     | _ -> ExtrapolateSequence newSequence (sequences @ [ newSequence ])
 
-let AddPlaceholders (sequences: int seq list) = sequences |> List.map (fun f -> f |> Seq.append (seq { 0 }))
+let AddPlaceholders (sequences: HistoryElement array list) =
+    sequences
+    |> List.rev
+    |> List.skip 1
+    |> List.map (fun f -> Array.append f [| Placeholder |])
+    |> List.append [ sequences |> List.last |> Array.append [| Number 0 |] ]
+    |> List.rev
 
-let ParseLine (line: string) = line.Split(" ") |> fun f -> { NumberSequence = f |> Seq.map int }
+let SolvePlaceholders (sequences: HistoryElement array list) =
+    sequences
+    |> List.rev
+    |> List.fold
+        (fun acc ele ->
+            acc
+            @ [ ele
+                |> Array.mapi (fun idx e ->
+                    match e with
+                    | Number n -> Number n
+                    | Placeholder ->
+                        match (((acc |> List.last) |> Array.last), ele.[idx - 1]) with
+                        | (Number p, Number q) -> (Number(p + q))
+                        | _ -> failwithf "unable to parse") ])
+        []
+    |> List.rev
+
+let ParseLine (line: string) =
+    line.Split(" ")
+    |> fun f -> { NumberSequence = f |> Seq.map (fun f -> Number(f |> int)) |> Seq.toArray }
 
 let ParseInput file = file |> File.ReadAllLines |> Seq.map ParseLine
 
 match Environment.GetCommandLineArgs() with
 | [| _; file |] ->
-    let history = ParseInput file |> Seq.toList
+    let histories = ParseInput file
 
-    let p =
-        ExtrapolateSequence (history.Head).NumberSequence [ (history.Head).NumberSequence ]
+    let extrapolatedHistories =
+        histories
+        |> Seq.map (fun f -> ExtrapolateSequence f.NumberSequence [ f.NumberSequence ])
+        |> Seq.map AddPlaceholders
+        |> Seq.map SolvePlaceholders
+        |> Seq.toList
+
+    let finalValue =
+        extrapolatedHistories
+        |> List.map (fun f ->
+            match (f.[0] |> Array.last) with
+            | Number n -> n
+            | Placeholder -> failwith "Parse error")
+        |> List.sum
+
+    printfn $"[*] Sum of extrapolated values {finalValue}"
 
     0 |> ignore
 | _ ->
