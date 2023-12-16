@@ -12,4 +12,4 @@ My own solutions to the Advent of Code 2023 problems.
 | 6   | F#       | :star2: :star2: | [Day06.WaitForIt](https://github.com/Lerke/AdventOfCode2023/tree/main/Day06.WaitForIt)                                 |
 | 7   | F#       | :star2: :star2: | [Day07.CamelCards](https://github.com/Lerke/AdventOfCode2023/tree/main/Day07.CamelCards)                               |
 | 8   | F#       | :star2: :star2: | [Day08.HauntedWasteland](https://github.com/Lerke/AdventOfCode2023/tree/main/Day08.HauntedWasteland)                   |
-| 9   | F#       | :star2:         | [Day09.MirageMaintenance](https://github.com/Lerke/AdventOfCode2023/tree/main/Day09.MirageMaintenance)                 |
+| 9   | F#       | :star2: :star2: | [Day09.MirageMaintenance](https://github.com/Lerke/AdventOfCode2023/tree/main/Day09.MirageMaintenance)                 |

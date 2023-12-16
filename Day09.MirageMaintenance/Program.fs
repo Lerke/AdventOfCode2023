@@ -21,15 +21,15 @@ let rec ExtrapolateSequence (sequence: HistoryElement array) (sequences: History
     | true -> sequences @ [ newSequence ]
     | _ -> ExtrapolateSequence newSequence (sequences @ [ newSequence ])
 
-let AddPlaceholders (sequences: HistoryElement array list) =
+let AddPlaceholders mappingFun (sequences: HistoryElement array list) =
     sequences
     |> List.rev
     |> List.skip 1
-    |> List.map (fun f -> Array.append f [| Placeholder |])
-    |> List.append [ sequences |> List.last |> Array.append [| Number 0 |] ]
+    |> List.map (fun f -> mappingFun f [| Placeholder |])
+    |> List.append [ sequences |> List.last |> (fun f -> mappingFun f [| Number 0 |]) ]
     |> List.rev
 
-let SolvePlaceholders (sequences: HistoryElement array list) =
+let SolvePlaceholders (sequences: HistoryElement array list) selector additionFn =
     sequences
     |> List.rev
     |> List.fold
@@ -40,8 +40,8 @@ let SolvePlaceholders (sequences: HistoryElement array list) =
                     match e with
                     | Number n -> Number n
                     | Placeholder ->
-                        match (((acc |> List.last) |> Array.last), ele.[idx - 1]) with
-                        | (Number p, Number q) -> (Number(p + q))
+                        match (selector acc ele idx) with
+                        | (Number p, Number q) -> (Number(additionFn q p))
                         | _ -> failwithf "unable to parse") ])
         []
     |> List.rev
@@ -52,6 +52,14 @@ let ParseLine (line: string) =
 
 let ParseInput file = file |> File.ReadAllLines |> Seq.map ParseLine
 
+let FinalValue (values: HistoryElement array list list) selector =
+    values
+    |> List.map (fun f ->
+        match (f.[0] |> selector) with
+        | Number n -> n
+        | Placeholder -> failwith "Parse error")
+    |> List.sum
+
 match Environment.GetCommandLineArgs() with
 | [| _; file |] ->
     let histories = ParseInput file
@@ -59,19 +67,22 @@ match Environment.GetCommandLineArgs() with
     let extrapolatedHistories =
         histories
         |> Seq.map (fun f -> ExtrapolateSequence f.NumberSequence [ f.NumberSequence ])
-        |> Seq.map AddPlaceholders
-        |> Seq.map SolvePlaceholders
+        |> Seq.map (AddPlaceholders Array.append)
+        |> Seq.map (fun f -> SolvePlaceholders f (fun acc ele idx -> ((acc |> List.last) |> Array.last), ele.[idx - 1]) (+))
         |> Seq.toList
 
-    let finalValue =
-        extrapolatedHistories
-        |> List.map (fun f ->
-            match (f.[0] |> Array.last) with
-            | Number n -> n
-            | Placeholder -> failwith "Parse error")
-        |> List.sum
-
+    let finalValue = FinalValue extrapolatedHistories Array.last
     printfn $"[*] Sum of extrapolated values {finalValue}"
+
+    let beginningExtrapolatedHistories =
+        histories
+        |> Seq.map (fun f -> ExtrapolateSequence f.NumberSequence [ f.NumberSequence ])
+        |> Seq.map (AddPlaceholders(fun f p -> Array.append p f))
+        |> Seq.map (fun f -> SolvePlaceholders f (fun acc ele _ -> ((acc |> List.last) |> Array.head), ele.[1]) (-))
+        |> Seq.toList
+
+    let finalPartTwo = FinalValue beginningExtrapolatedHistories Array.head
+    printfn $"[**] Sum of extrapolated values {finalPartTwo}"
 
     0 |> ignore
 | _ ->
