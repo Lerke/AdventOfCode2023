@@ -18,6 +18,8 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Day08.HauntedWasteland", "D
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Day09.MirageMaintenance", "Day09.MirageMaintenance\Day09.MirageMaintenance.fsproj", "{A7C12C34-4F46-4EC4-A7F0-58C428644E85}"
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Day10.PipeMaze", "Day10.PipeMaze\Day10.PipeMaze.fsproj", "{35F475C0-17CC-4D96-BA7D-FA826EA67E85}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -60,5 +62,9 @@ Global
 		{A7C12C34-4F46-4EC4-A7F0-58C428644E85}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A7C12C34-4F46-4EC4-A7F0-58C428644E85}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A7C12C34-4F46-4EC4-A7F0-58C428644E85}.Release|Any CPU.Build.0 = Release|Any CPU
+		{35F475C0-17CC-4D96-BA7D-FA826EA67E85}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{35F475C0-17CC-4D96-BA7D-FA826EA67E85}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{35F475C0-17CC-4D96-BA7D-FA826EA67E85}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{35F475C0-17CC-4D96-BA7D-FA826EA67E85}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
